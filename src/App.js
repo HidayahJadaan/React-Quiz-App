@@ -9,6 +9,7 @@ import ReadyScreen from "./components/ReadyScreen";
 import Question from "./components/Question";
 import NextButton from "./components/NextButton";
 import Progress from "./components/Progress";
+import FinishScreen from "./components/FinishScreen";
 
 
 
@@ -19,6 +20,7 @@ const initialState = {
   index: 0,
   answer: null,
   points : 0,
+  highscore:0,
 };
 
 function reducer(state, action) {
@@ -55,7 +57,29 @@ const question = state.questions.at(state.index)
 
         case "nextQuestion":
       return { ...state, index: state.index + 1, answer: null };
-    
+      case "finish":
+        return {
+          ...state,
+          status: "finished",
+          highscore: state.points > state.highscore? state.points : state.highscore
+        };
+
+        case "restart":
+          return {
+            ...initialState,
+            questions: state.questions,
+            status: "ready",
+           
+          };
+          // return{
+          //   ...state,
+          //   index: 0,
+          //   answer: null,
+          //   points : 0,
+          //   highscore:0,
+          //   status: "ready",
+
+          // } another way to restart
 
     default:
       throw new Error("Action UnKnown");
@@ -64,7 +88,7 @@ const question = state.questions.at(state.index)
 
 // json-server npm package provide us with a Fake API
 function App() {
-  const [{ questions, status , index, answer, points}, dispatch] = useReducer(reducer, initialState);
+  const [{ questions, status , index, answer, points, highscore}, dispatch] = useReducer(reducer, initialState);
 
   const numQuestions = questions.length;
 
@@ -107,9 +131,19 @@ function App() {
          
        <NextButton dispatch = {dispatch}
        answer = {answer}
+       numQuestions={numQuestions}
+       index={index}
        />
          </>
          }
+
+         {status === 'finished' && <FinishScreen 
+         points={points}
+          maxPossiblePoints={maxPossiblePoints}
+          highscore={highscore}
+          dispatch={dispatch}
+          />
+          }
       </Main>
     </div>
   );
